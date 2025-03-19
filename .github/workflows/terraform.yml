@@ -19,7 +19,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Debug Environment Variables
-        run: env | grep ARM_
+        run: env | grep ARM_ || echo "No ARM_ environment variables found"
 
       - name: Inject Terraform Variables
         run: |
