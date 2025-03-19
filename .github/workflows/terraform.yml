@@ -18,15 +18,13 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Debug Environment Variables
-        run: env | grep ARM_ || echo "No ARM_ environment variables found"
-
-      - name: Inject Terraform Variables
-        run: |
-          echo 'client_id = "${{ secrets.ARM_CLIENT_ID }}"' > terraform.tfvars
-          echo 'client_secret = "${{ secrets.ARM_CLIENT_SECRET }}"' >> terraform.tfvars
-          echo 'tenant_id = "${{ secrets.ARM_TENANT_ID }}"' >> terraform.tfvars
-          echo 'subscription_id = "${{ secrets.ARM_SUBSCRIPTION_ID }}"' >> terraform.tfvars
+      - name: Azure Login via OIDC
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.ARM_CLIENT_ID }}
+          tenant-id: ${{ secrets.ARM_TENANT_ID }}
+          subscription-id: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+          enable-AzPSSession: false  # We don't need PowerShell for Terraform
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
