@@ -18,30 +18,30 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      - name: Debug Environment Variables
+        run: env | grep ARM_
+
+      - name: Inject Terraform Variables
+        run: |
+          echo 'client_id = "${{ secrets.ARM_CLIENT_ID }}"' > terraform.tfvars
+          echo 'client_secret = "${{ secrets.ARM_CLIENT_SECRET }}"' >> terraform.tfvars
+          echo 'tenant_id = "${{ secrets.ARM_TENANT_ID }}"' >> terraform.tfvars
+          echo 'subscription_id = "${{ secrets.ARM_SUBSCRIPTION_ID }}"' >> terraform.tfvars
+
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: "1.6.0"
 
-      - name: Debug Environment Variables
-        run: env | grep ARM_
+      - name: Clean Terraform Cache
+        run: rm -rf .terraform*
 
       - name: Terraform Init
         run: terraform init
 
       - name: Terraform Plan
-        run: terraform plan
-        env:
-          ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-          ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-          ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-          ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+        run: terraform plan -var-file="terraform.tfvars"
 
       - name: Terraform Apply
         if: github.event_name == 'push'
-        run: terraform apply -auto-approve
-        env:
-          ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-          ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-          ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-          ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+        run: terraform apply -auto-approve -var-file="terraform.tfvars"
