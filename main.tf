@@ -17,7 +17,7 @@ provider "azurerm" {
 
 # Resource Group (Free Tier)
 resource "azurerm_resource_group" "example" {
-  name     = "terraform-free-tier-rg"
+  name     = "terraform-free-tier-rg1"
   location = "East US"
 }
 
